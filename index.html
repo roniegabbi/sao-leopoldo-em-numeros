@@ -6,6 +6,7 @@
 <title>São Leopoldo em Números · Secretaria de Desenvolvimento Econômico</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
   :root{
     /* tema claro vibrante · paleta oficial do brasão (Lei 276/1951) */
@@ -809,10 +810,21 @@
       <div class="admtabs">
         <button class="admtab active" id="tabInd" onclick="admTab('ind')">Indicadores</button>
         <button class="admtab" id="tabSer" onclick="admTab('ser')">Gráficos</button>
+        <button class="admtab" id="tabCsv" onclick="admTab('csv')">Planilha</button>
       </div>
       <div id="admInd"></div>
       <div id="admSer" style="display:none"></div>
-      <div class="admsave">
+      <div id="admCsv" style="display:none">
+        <p class="note" style="margin-top:4px">Atualize vários indicadores de uma vez por planilha (ex.: CAGED, RAIS,
+          frota). Baixe o modelo com os números atuais, edite no Excel e envie de volta.</p>
+        <button class="btn ghost" style="margin-top:8px" onclick="admDownloadTemplate()">⬇ Baixar modelo (CSV)</button>
+        <div class="field" style="margin-top:12px"><label>Enviar planilha preenchida (.csv)</label>
+          <input id="admCsvFile" type="file" accept=".csv,text/csv" onchange="admParseCsv(this)"></div>
+        <div id="admCsvPreview"></div>
+        <button class="btn" id="admCsvApply" style="display:none;margin-top:8px" onclick="admApplyCsv()">Aplicar alterações da planilha</button>
+        <div id="admCsvMsg" class="admmsg"></div>
+      </div>
+      <div class="admsave" id="admSaveBar">
         <div id="admSaveMsg" class="admmsg"></div>
         <button class="btn" onclick="admSave()">Salvar alterações</button>
       </div>
@@ -1000,8 +1012,66 @@ async function admLoad(){
 function admTab(t){
   document.getElementById('admInd').style.display = t==='ind'?'block':'none';
   document.getElementById('admSer').style.display = t==='ser'?'block':'none';
+  document.getElementById('admCsv').style.display = t==='csv'?'block':'none';
+  document.getElementById('admSaveBar').style.display = t==='csv'?'none':'block';
   document.getElementById('tabInd').classList.toggle('active', t==='ind');
   document.getElementById('tabSer').classList.toggle('active', t==='ser');
+  document.getElementById('tabCsv').classList.toggle('active', t==='csv');
+}
+
+/* ---- importador de planilha (semiautomático: CAGED, RAIS, etc.) ---- */
+let admCsvRows=[];
+function admNum(v){
+  if(v==null||v==='') return null;
+  let s=String(v).trim();
+  if(/,/.test(s) && /\./.test(s)) s=s.replace(/\./g,'').replace(',','.');
+  else if(/,/.test(s)) s=s.replace(',','.');
+  s=s.replace(/[^\d.\-]/g,'');
+  const n=Number(s); return isNaN(n)?null:n;
+}
+function admDownloadTemplate(){
+  supa.from('sl_indicadores').select('chave,rotulo,valor,fonte,data_referencia').order('ordem').then(({data})=>{
+    const rows=[['chave','rotulo','valor','fonte','data_referencia']];
+    (data||[]).forEach(r=>rows.push([r.chave, r.rotulo||'', r.valor??'', r.fonte||'', r.data_referencia||'']));
+    const csv=rows.map(r=>r.map(c=>{ c=String(c); return /[",;\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(',')).join('\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='indicadores-sao-leopoldo.csv'; a.click();
+  });
+}
+function admParseCsv(input){
+  const f=input.files[0]; if(!f) return;
+  Papa.parse(f,{header:true,skipEmptyLines:true,complete:async(res)=>{
+    admCsvRows=res.data||[];
+    const {data}=await supa.from('sl_indicadores').select('chave,valor,rotulo');
+    const cur={}; (data||[]).forEach(r=>cur[r.chave]=r);
+    let html='<div class="cap" style="margin-top:10px">Pré-visualização:</div>'; let n=0;
+    admCsvRows.forEach(row=>{
+      const k=(row.chave||'').trim(); if(!k||!cur[k]) return;
+      const novo=admNum(row.valor); if(novo==null) return;
+      if(Number(cur[k].valor)!==novo){ n++;
+        html+='<div class="admrow" style="padding:6px 0"><div class="lbl">'+(cur[k].rotulo||k)+'</div>'+
+              '<div class="cap">'+(cur[k].valor)+' &rarr; <b style="color:var(--brand)">'+novo+'</b></div></div>'; }
+    });
+    if(n===0) html+='<div class="admmsg">Nenhuma mudança detectada (verifique a coluna <b>chave</b> e os valores).</div>';
+    document.getElementById('admCsvPreview').innerHTML=html;
+    document.getElementById('admCsvApply').style.display = n>0?'block':'none';
+    document.getElementById('admCsvMsg').textContent='';
+  }});
+}
+async function admApplyCsv(){
+  const msg=document.getElementById('admCsvMsg'); msg.className='admmsg'; msg.textContent='Aplicando…';
+  try{
+    let n=0;
+    for(const row of admCsvRows){
+      const k=(row.chave||'').trim(); if(!k) continue;
+      const upd={}; const val=admNum(row.valor);
+      if(val!=null) upd.valor=val;
+      if(row.fonte!==undefined && row.fonte!=='') upd.fonte=row.fonte;
+      if(row.data_referencia!==undefined && row.data_referencia!=='') upd.data_referencia=String(row.data_referencia);
+      if(Object.keys(upd).length){ const {error}=await supa.from('sl_indicadores').update(upd).eq('chave',k); if(error) throw error; n++; }
+    }
+    msg.className='admmsg ok'; msg.textContent='Planilha aplicada ('+n+' indicadores). Recarregue a página para ver no site.';
+  }catch(e){ msg.className='admmsg err'; msg.textContent='Erro: '+(e.message||e); }
 }
 async function admSave(){
   const msg=document.getElementById('admSaveMsg'); msg.className='admmsg'; msg.textContent='Salvando…';

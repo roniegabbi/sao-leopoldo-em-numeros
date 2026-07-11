@@ -223,7 +223,7 @@
   .admin-open:hover{transform:translateY(-2px)}
   .drawer{position:fixed;inset:0;z-index:70;background:rgba(8,20,14,.62);display:none;align-items:center;justify-content:center;padding:20px}
   .drawer.open{display:flex}
-  .drawer .box{background:#fff;border:1px solid var(--line);border-radius:18px;max-width:520px;width:100%;padding:28px;max-height:88vh;overflow:auto;box-shadow:var(--shadow-lg)}
+  .drawer .box{background:#fff;border:1px solid var(--line);border-radius:18px;max-width:760px;width:100%;padding:30px;max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg)}
   .drawer h3{font-size:19px;margin-bottom:4px;font-weight:800}
   .drawer p.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
   .field{margin-bottom:12px}
@@ -255,6 +255,15 @@
   .admrow input{flex:1;min-width:80px;background:var(--card2);border:1px solid var(--line);color:var(--txt);
     padding:8px 10px;border-radius:8px;font-size:13px}
   .admrow input.val{max-width:130px;font-weight:800;color:var(--brand)}
+  .admrow.manual{border-left:3px solid var(--gold);padding-left:11px;background:rgba(209,154,31,.06);
+    border-radius:0 8px 8px 0;border-bottom:1px solid var(--line)}
+  .admrow.auto{opacity:.85;border-left:3px solid var(--blue);padding-left:11px;border-radius:0 8px 8px 0}
+  .admrow.auto input{background:#eceef0;color:var(--dim);cursor:not-allowed;border-style:dashed}
+  .adm-tag{display:inline-block;font-size:9px;font-weight:800;padding:1px 7px;border-radius:5px;margin-left:6px;vertical-align:middle;text-transform:none;letter-spacing:0}
+  .adm-tag.auto{color:#2f5db0;background:rgba(47,93,176,.13)}
+  .adm-tag.manual{color:#a9741a;background:rgba(209,154,31,.16)}
+  .adm-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin:2px 0 10px}
+  .adm-legend b{font-weight:700}
   .admsave{position:sticky;bottom:0;background:#fff;padding-top:10px}
 
   /* ============ AJUSTES MOBILE ============ */
@@ -993,12 +1002,17 @@ async function admLogout(){
 async function admLoad(){
   const { data: inds } = await supa.from('sl_indicadores').select('*').order('ordem');
   const { data: sers } = await supa.from('sl_series').select('*').order('chave');
-  let h='';
+  admAuto = new Set((inds||[]).filter(r=>r.auto).map(r=>r.chave));
+  let h='<div class="adm-legend"><span><b style="color:#2f5db0">🔒 Automático</b> = atualiza sozinho (bloqueado)</span>'+
+        '<span><b style="color:#a9741a">✎ Manual</b> = você informa</span></div>';
   (inds||[]).forEach(r=>{
-    h+='<div class="admrow"><div class="cap">'+(r.capitulo||'')+'</div><div class="lbl">'+r.rotulo+'</div>'+
-       '<div class="flds"><input class="val" type="number" step="any" value="'+(r.valor??'')+'" data-k="'+r.chave+'" data-f="valor">'+
-       '<input type="text" value="'+esc(r.fonte)+'" placeholder="fonte" data-k="'+r.chave+'" data-f="fonte">'+
-       '<input type="text" value="'+esc(r.data_referencia)+'" placeholder="ref." data-k="'+r.chave+'" data-f="data_referencia"></div></div>';
+    const isAuto=!!r.auto;
+    const dis=isAuto?' disabled':''; const da=isAuto?' data-auto="1"':'';
+    const tag=isAuto?'<span class="adm-tag auto">🔒 Automático</span>':'<span class="adm-tag manual">✎ Manual</span>';
+    h+='<div class="admrow '+(isAuto?'auto':'manual')+'"><div class="cap">'+(r.capitulo||'')+tag+'</div><div class="lbl">'+r.rotulo+'</div>'+
+       '<div class="flds"><input class="val" type="number" step="any" value="'+(r.valor??'')+'" data-k="'+r.chave+'" data-f="valor"'+da+dis+'>'+
+       '<input type="text" value="'+esc(r.fonte)+'" placeholder="fonte" data-k="'+r.chave+'" data-f="fonte"'+da+dis+'>'+
+       '<input type="text" value="'+esc(r.data_referencia)+'" placeholder="ref." data-k="'+r.chave+'" data-f="data_referencia"'+da+dis+'></div></div>';
   });
   document.getElementById('admInd').innerHTML=h;
   let s='';
@@ -1020,7 +1034,7 @@ function admTab(t){
 }
 
 /* ---- importador de planilha (semiautomático: CAGED, RAIS, etc.) ---- */
-let admCsvRows=[];
+let admCsvRows=[], admAuto=new Set();
 function admNum(v){
   if(v==null||v==='') return null;
   let s=String(v).trim();
@@ -1046,7 +1060,7 @@ function admParseCsv(input){
     const cur={}; (data||[]).forEach(r=>cur[r.chave]=r);
     let html='<div class="cap" style="margin-top:10px">Pré-visualização:</div>'; let n=0;
     admCsvRows.forEach(row=>{
-      const k=(row.chave||'').trim(); if(!k||!cur[k]) return;
+      const k=(row.chave||'').trim(); if(!k||!cur[k]||admAuto.has(k)) return;
       const novo=admNum(row.valor); if(novo==null) return;
       if(Number(cur[k].valor)!==novo){ n++;
         html+='<div class="admrow" style="padding:6px 0"><div class="lbl">'+(cur[k].rotulo||k)+'</div>'+
@@ -1063,7 +1077,7 @@ async function admApplyCsv(){
   try{
     let n=0;
     for(const row of admCsvRows){
-      const k=(row.chave||'').trim(); if(!k) continue;
+      const k=(row.chave||'').trim(); if(!k||admAuto.has(k)) continue;
       const upd={}; const val=admNum(row.valor);
       if(val!=null) upd.valor=val;
       if(row.fonte!==undefined && row.fonte!=='') upd.fonte=row.fonte;
@@ -1078,6 +1092,7 @@ async function admSave(){
   try{
     const inds={};
     document.querySelectorAll('#admInd input').forEach(i=>{
+      if(i.dataset.auto) return; // pula indicadores automáticos (bloqueados)
       const k=i.dataset.k, f=i.dataset.f; inds[k]=inds[k]||{};
       inds[k][f]= f==='valor' ? (i.value===''?null:Number(i.value)) : i.value;
     });

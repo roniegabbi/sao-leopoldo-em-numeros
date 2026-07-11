@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>São Leopoldo em Números · Secretaria de Desenvolvimento Econômico</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     /* tema claro vibrante · paleta oficial do brasão (Lei 276/1951) */
@@ -238,6 +239,22 @@
   .pill.ok{color:var(--brand);background:rgba(31,157,87,.13)}
   .pill.rev{color:var(--gold);background:rgba(209,154,31,.15)}
   .pill.man{color:var(--dim);background:rgba(116,132,122,.14)}
+  .admmsg{font-size:12.5px;margin-top:10px;min-height:16px}
+  .admmsg.ok{color:var(--brand);font-weight:600} .admmsg.err{color:var(--red);font-weight:600}
+  .admbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;
+    font-size:13px;color:var(--muted);background:var(--card2);padding:8px 12px;border-radius:10px}
+  .admtabs{display:flex;gap:6px;margin-bottom:12px}
+  .admtab{flex:1;padding:8px;border:1px solid var(--line);background:#fff;border-radius:9px;
+    font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  .admtab.active{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+  .admrow{padding:11px 0;border-bottom:1px solid var(--line)}
+  .admrow .cap{font-size:9.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .admrow .lbl{font-size:12.5px;font-weight:700;color:var(--txt);margin:2px 0 6px}
+  .admrow .flds{display:flex;gap:6px;flex-wrap:wrap}
+  .admrow input{flex:1;min-width:80px;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    padding:8px 10px;border-radius:8px;font-size:13px}
+  .admrow input.val{max-width:130px;font-weight:800;color:var(--brand)}
+  .admsave{position:sticky;bottom:0;background:#fff;padding-top:10px}
 
   /* ============ AJUSTES MOBILE ============ */
   @media(max-width:640px){
@@ -312,10 +329,10 @@
     alimentado por fontes oficiais e curado pela Secretaria de Desenvolvimento Econômico.</p>
 
   <div class="kpis">
-    <div class="kpi"><div class="n" data-count="225669">0</div><div class="l">habitantes · IBGE est. 2024</div></div>
-    <div class="kpi"><div class="n" data-count="31000" data-suffix="+">0</div><div class="l">estudantes na UNISINOS</div></div>
-    <div class="kpi"><div class="n" data-count="0.739" data-dec="3">0</div><div class="l">IDHM — alto</div></div>
-    <div class="kpi"><div class="n" data-count="6" data-suffix="ª">0</div><div class="l">maior economia do RS</div></div>
+    <div class="kpi"><div class="n" data-count="225669" data-key="pop_total">0</div><div class="l">habitantes · IBGE est. 2024</div></div>
+    <div class="kpi"><div class="n" data-count="31000" data-key="uni_estudantes_hero" data-suffix="+">0</div><div class="l">estudantes na UNISINOS</div></div>
+    <div class="kpi"><div class="n" data-count="0.739" data-key="idhm" data-dec="3">0</div><div class="l">IDHM — alto</div></div>
+    <div class="kpi"><div class="n" data-count="6" data-key="rank_economia" data-suffix="ª">0</div><div class="l">maior economia do RS</div></div>
   </div>
   <div class="hero-imgs">
     <figure class="himg wide"><img src="bem-vindos-sao-leopoldo.png" alt="Portal Bem-Vindos a São Leopoldo · Rota Romântica" loading="lazy" /><figcaption>Portal da Rota Romântica</figcaption></figure>
@@ -381,10 +398,10 @@
       do Rio Grande do Sul.</p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge">Receita Federal</span><div class="n brand" data-count="33468">0</div><div class="t">Empresas ativas</div><div class="s">CNPJ ativos · valor de referência</div></div>
-      <div class="stat"><span class="badge">IBGE · 2023</span><div class="n" data-count="54004" data-prefix="R$ ">0</div><div class="t">PIB per capita</div><div class="s">Acima da média da região do Sinos</div></div>
+      <div class="stat"><span class="badge">Receita Federal</span><div class="n brand" data-count="33468" data-key="empresas_ativas">0</div><div class="t">Empresas ativas</div><div class="s">CNPJ ativos · valor de referência</div></div>
+      <div class="stat"><span class="badge">IBGE · 2023</span><div class="n" data-count="54004" data-key="pib_per_capita" data-prefix="R$ ">0</div><div class="t">PIB per capita</div><div class="s">Acima da média da região do Sinos</div></div>
       <div class="stat"><span class="badge">Ranking RS</span><div class="n gold">6ª</div><div class="t">Maior PIB do estado</div><div class="s">Entre as 10 maiores economias</div></div>
-      <div class="stat"><span class="badge">Saldo anual</span><div class="n brand" data-count="834" data-suffix="+">0</div><div class="t">Novas empresas / ano</div><div class="s">Abertura líquida · referência</div></div>
+      <div class="stat"><span class="badge">Saldo anual</span><div class="n brand" data-count="834" data-key="novas_empresas_ano" data-suffix="+">0</div><div class="t">Novas empresas / ano</div><div class="s">Abertura líquida · referência</div></div>
     </div>
 
     <div class="grid g2" style="margin-top:16px">
@@ -419,10 +436,10 @@
       autopeças e máquinas. A cidade integra o <strong>maior polo calçadista do Brasil</strong>.</p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge gold">Desde 1973/74</span><div class="n gold" data-count="3400" data-suffix="+">0</div><div class="t">Empregos na STIHL</div><div class="s">1ª unidade do grupo fora da Alemanha</div></div>
-      <div class="stat"><span class="badge">Exportação STIHL</span><div class="n" data-count="1.48" data-dec="2" data-prefix="R$ " data-suffix=" bi">0</div><div class="t">Exportações em 2024</div><div class="s">Vende para ~70 países</div></div>
-      <div class="stat"><span class="badge">Grupo STIHL</span><div class="n blue" data-count="90" data-suffix="%">0</div><div class="t">Cilindros do grupo</div><div class="s">Produzidos no Brasil (São Leopoldo)</div></div>
-      <div class="stat"><span class="badge">Vale dos Sinos</span><div class="n" data-count="47.2" data-dec="1" data-suffix="%">0</div><div class="t">Calçados do RS</div><div class="s">Produção do polo · 2020</div></div>
+      <div class="stat"><span class="badge gold">Desde 1973/74</span><div class="n gold" data-count="3400" data-key="stihl_empregos" data-suffix="+">0</div><div class="t">Empregos na STIHL</div><div class="s">1ª unidade do grupo fora da Alemanha</div></div>
+      <div class="stat"><span class="badge">Exportação STIHL</span><div class="n" data-count="1.48" data-key="stihl_export" data-dec="2" data-prefix="R$ " data-suffix=" bi">0</div><div class="t">Exportações em 2024</div><div class="s">Vende para ~70 países</div></div>
+      <div class="stat"><span class="badge">Grupo STIHL</span><div class="n blue" data-count="90" data-key="stihl_cilindros" data-suffix="%">0</div><div class="t">Cilindros do grupo</div><div class="s">Produzidos no Brasil (São Leopoldo)</div></div>
+      <div class="stat"><span class="badge">Vale dos Sinos</span><div class="n" data-count="47.2" data-key="calcados_rs" data-dec="1" data-suffix="%">0</div><div class="t">Calçados do RS</div><div class="s">Produção do polo · 2020</div></div>
     </div>
 
     <div class="grid g2" style="margin-top:16px">
@@ -465,10 +482,10 @@
       saúde e energia, articuladas pela <strong>Unitec</strong>.</p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge">Tecnosinos</span><div class="n brand" data-count="96">0</div><div class="t">Empresas no parque</div><div class="s">Nacionais e internacionais</div></div>
-      <div class="stat"><span class="badge">Faturamento</span><div class="n" data-count="2.5" data-dec="1" data-prefix="R$ " data-suffix=" bi">0</div><div class="t">Gerados pelo parque</div><div class="s">Tecnosinos · referência</div></div>
-      <div class="stat"><span class="badge">Propriedade intelectual</span><div class="n gold" data-count="120">0</div><div class="t">Registros de PI</div><div class="s">Patentes e ativos</div></div>
-      <div class="stat"><span class="badge">Infraestrutura</span><div class="n" data-count="140" data-suffix="+">0</div><div class="t">Laboratórios</div><div class="s">Campus UNISINOS / Tecnosinos</div></div>
+      <div class="stat"><span class="badge">Tecnosinos</span><div class="n brand" data-count="96" data-key="tecnosinos_empresas">0</div><div class="t">Empresas no parque</div><div class="s">Nacionais e internacionais</div></div>
+      <div class="stat"><span class="badge">Faturamento</span><div class="n" data-count="2.5" data-key="tecnosinos_faturamento" data-dec="1" data-prefix="R$ " data-suffix=" bi">0</div><div class="t">Gerados pelo parque</div><div class="s">Tecnosinos · referência</div></div>
+      <div class="stat"><span class="badge">Propriedade intelectual</span><div class="n gold" data-count="120" data-key="tecnosinos_pi">0</div><div class="t">Registros de PI</div><div class="s">Patentes e ativos</div></div>
+      <div class="stat"><span class="badge">Infraestrutura</span><div class="n" data-count="140" data-key="tecnosinos_labs" data-suffix="+">0</div><div class="t">Laboratórios</div><div class="s">Campus UNISINOS / Tecnosinos</div></div>
     </div>
 
     <div class="funnel">
@@ -505,10 +522,10 @@
       abastece o Tecnosinos e o ecossistema de inovação.</p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge">UNISINOS</span><div class="n brand" data-count="31000" data-suffix="+">0</div><div class="t">Estudantes</div><div class="s">Graduação e pós · presencial + EAD</div></div>
-      <div class="stat"><span class="badge">Graduação</span><div class="n" data-count="70" data-suffix="+">0</div><div class="t">Cursos de graduação</div><div class="s">+26 programas de pós (CAPES)</div></div>
-      <div class="stat"><span class="badge">Corpo docente</span><div class="n" data-count="2000" data-suffix="+">0</div><div class="t">Docentes e funcionários</div><div class="s">86% mestres, doutores e pós-doutores</div></div>
-      <div class="stat"><span class="badge">Campus</span><div class="n gold" data-count="150">0</div><div class="t">Laboratórios</div><div class="s">90,55 ha · +400 salas de aula</div></div>
+      <div class="stat"><span class="badge">UNISINOS</span><div class="n brand" data-count="31000" data-key="uni_estudantes" data-suffix="+">0</div><div class="t">Estudantes</div><div class="s">Graduação e pós · presencial + EAD</div></div>
+      <div class="stat"><span class="badge">Graduação</span><div class="n" data-count="70" data-key="uni_cursos" data-suffix="+">0</div><div class="t">Cursos de graduação</div><div class="s">+26 programas de pós (CAPES)</div></div>
+      <div class="stat"><span class="badge">Corpo docente</span><div class="n" data-count="2000" data-key="uni_docentes" data-suffix="+">0</div><div class="t">Docentes e funcionários</div><div class="s">86% mestres, doutores e pós-doutores</div></div>
+      <div class="stat"><span class="badge">Campus</span><div class="n gold" data-count="150" data-key="uni_labs">0</div><div class="t">Laboratórios</div><div class="s">90,55 ha · +400 salas de aula</div></div>
     </div>
 
     <div class="grid g2" style="margin-top:16px">
@@ -543,7 +560,7 @@
       e nos serviços. <strong>Fonte automatizável: Novo CAGED/MTE (mensal).</strong></p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge">CAGED</span><div class="n brand" data-count="2112" data-suffix="+">0</div><div class="t">Saldo de empregos</div><div class="s">Admissões − desligamentos · referência</div></div>
+      <div class="stat"><span class="badge">CAGED</span><div class="n brand" data-count="2112" data-key="caged_saldo" data-suffix="+">0</div><div class="t">Saldo de empregos</div><div class="s">Admissões − desligamentos · referência</div></div>
       <div class="stat"><span class="badge">Serviços</span><div class="n">53%</div><div class="t">Peso na economia</div><div class="s">Maior gerador de vínculos</div></div>
       <div class="stat"><span class="badge">Indústria</span><div class="n blue">30%</div><div class="t">Do Valor Adicionado</div><div class="s">Metal-mecânico e calçadista</div></div>
       <div class="stat"><span class="badge">Empresas</span><div class="n gold" data-count="834" data-suffix="+">0</div><div class="t">Novas / ano</div><div class="s">Abertura líquida</div></div>
@@ -571,9 +588,9 @@
       MDIC Comex Stat (mensal).</strong></p>
 
     <div class="grid g3">
-      <div class="stat"><span class="badge">Comex Stat · 1º tri/2024</span><div class="n" data-count="103.4" data-dec="1" data-prefix="US$ " data-suffix=" mi">0</div><div class="t">Exportações no trimestre</div><div class="s">Valor de referência · MDIC</div></div>
-      <div class="stat"><span class="badge">Setor nº 1</span><div class="n brand" data-count="28.4" data-dec="1" data-suffix="%">0</div><div class="t">Máquinas não elétricas</div><div class="s">Maior fatia da pauta</div></div>
-      <div class="stat"><span class="badge">Setor nº 2</span><div class="n gold" data-count="23" data-suffix="%">0</div><div class="t">Armas e munições</div><div class="s">Taurus · forte peso exportador</div></div>
+      <div class="stat"><span class="badge">Comex Stat · 1º tri/2024</span><div class="n" data-count="103.4" data-key="export_trimestre" data-dec="1" data-prefix="US$ " data-suffix=" mi">0</div><div class="t">Exportações no trimestre</div><div class="s">Valor de referência · MDIC</div></div>
+      <div class="stat"><span class="badge">Setor nº 1</span><div class="n brand" data-count="28.4" data-key="export_maquinas" data-dec="1" data-suffix="%">0</div><div class="t">Máquinas não elétricas</div><div class="s">Maior fatia da pauta</div></div>
+      <div class="stat"><span class="badge">Setor nº 2</span><div class="n gold" data-count="23" data-key="export_armas" data-suffix="%">0</div><div class="t">Armas e munições</div><div class="s">Taurus · forte peso exportador</div></div>
     </div>
 
     <div class="panel" style="margin-top:16px">
@@ -593,10 +610,10 @@
       e para a Região Metropolitana — mais de <strong>1 milhão de pessoas</strong> atendidas.</p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge">Hospital Centenário</span><div class="n brand" data-count="255">0</div><div class="t">Leitos hospitalares</div><div class="s">100% SUS · fundado em 1931</div></div>
-      <div class="stat"><span class="badge">Referência</span><div class="n" data-count="1000000" data-suffix="+">0</div><div class="t">Habitantes atendidos</div><div class="s">Sinos, Caí e RMPA</div></div>
-      <div class="stat"><span class="badge">UTI adulto</span><div class="n gold" data-count="16">0</div><div class="t">Leitos de UTI adulto</div><div class="s">+10 UTI neonatal · 6 UCI neo</div></div>
-      <div class="stat"><span class="badge">História</span><div class="n" data-count="94" data-suffix=" anos">0</div><div class="t">De atendimento</div><div class="s">Inaugurado no centenário da cidade</div></div>
+      <div class="stat"><span class="badge">Hospital Centenário</span><div class="n brand" data-count="255" data-key="hosp_leitos">0</div><div class="t">Leitos hospitalares</div><div class="s">100% SUS · fundado em 1931</div></div>
+      <div class="stat"><span class="badge">Referência</span><div class="n" data-count="1000000" data-key="hosp_referencia" data-suffix="+">0</div><div class="t">Habitantes atendidos</div><div class="s">Sinos, Caí e RMPA</div></div>
+      <div class="stat"><span class="badge">UTI adulto</span><div class="n gold" data-count="16" data-key="hosp_uti">0</div><div class="t">Leitos de UTI adulto</div><div class="s">+10 UTI neonatal · 6 UCI neo</div></div>
+      <div class="stat"><span class="badge">História</span><div class="n" data-count="94" data-key="hosp_anos" data-suffix=" anos">0</div><div class="t">De atendimento</div><div class="s">Inaugurado no centenário da cidade</div></div>
     </div>
   </div>
 </section>
@@ -611,8 +628,8 @@
       <strong>Fonte: SSP-RS.</strong></p>
 
     <div class="grid g4">
-      <div class="stat"><span class="badge">SSP-RS · 2024</span><div class="n brand" data-count="17">0</div><div class="t">Homicídios em 2024</div><div class="s">25 em 2023 · queda de 8 casos</div></div>
-      <div class="stat"><span class="badge red">Destaque estadual</span><div class="n" data-count="64" data-suffix="%">0</div><div class="t">Queda em 2025*</div><div class="s">*Período comparável · SSP-RS</div></div>
+      <div class="stat"><span class="badge">SSP-RS · 2024</span><div class="n brand" data-count="17" data-key="homicidios_2024">0</div><div class="t">Homicídios em 2024</div><div class="s">25 em 2023 · queda de 8 casos</div></div>
+      <div class="stat"><span class="badge red">Destaque estadual</span><div class="n" data-count="64" data-key="seg_queda_2025" data-suffix="%">0</div><div class="t">Queda em 2025*</div><div class="s">*Período comparável · SSP-RS</div></div>
       <div class="stat"><span class="badge">vs média RS</span><div class="n gold">−33%</div><div class="t">Abaixo da média estadual</div><div class="s">Taxa de crimes graves · 2024</div></div>
       <div class="stat"><span class="badge">3 anos</span><div class="n">−18%</div><div class="t">Crimes graves</div><div class="s">Redução acumulada</div></div>
     </div>
@@ -635,8 +652,8 @@
       <strong>Fontes: DetranRS / SENATRAN.</strong></p>
 
     <div class="grid g3">
-      <div class="stat"><span class="badge">DetranRS · 2024</span><div class="n brand" data-count="140750">0</div><div class="t">Frota total de veículos</div><div class="s">Veículos emplacados</div></div>
-      <div class="stat"><span class="badge">Habitantes</span><div class="n" data-count="1.6" data-dec="1">0</div><div class="t">Habitantes por veículo</div><div class="s">~225 mil hab. / 140 mil veíc.</div></div>
+      <div class="stat"><span class="badge">DetranRS · 2024</span><div class="n brand" data-count="140750" data-key="frota_total">0</div><div class="t">Frota total de veículos</div><div class="s">Veículos emplacados</div></div>
+      <div class="stat"><span class="badge">Habitantes</span><div class="n" data-count="1.6" data-key="hab_por_veiculo" data-dec="1">0</div><div class="t">Habitantes por veículo</div><div class="s">~225 mil hab. / 140 mil veíc.</div></div>
       <div class="stat"><span class="badge">Próxima camada</span><div class="n gold">IPVA</div><div class="t">Arrecadação (Sefaz-RS)</div><div class="s">Automatizável mês a mês</div></div>
     </div>
 
@@ -773,24 +790,34 @@
 <button class="admin-open" onclick="openAdmin()">⚙ Painel interno</button>
 <div class="drawer" id="drawer">
   <div class="box">
-    <h3>Painel interno · conectado ao Supabase</h3>
-    <p class="sub">Estrutura pronta para editar indicadores e status dos conectores. Faça login com o usuário da Secretaria
-      (a conexão com o Supabase é configurada em <code>SUPABASE_CONFIG</code>).</p>
+    <h3>Painel interno · São Leopoldo em Números</h3>
+    <p class="sub">Edite os indicadores e as séries dos gráficos. As alterações aparecem no site logo após salvar
+      (pode ser necessário recarregar a página).</p>
 
-    <div class="field"><label>E-mail</label><input type="email" placeholder="usuario@saoleopoldo.rs.gov.br" /></div>
-    <div class="field"><label>Senha</label><input type="password" placeholder="••••••••" /></div>
-    <button class="btn" onclick="alert('Configure SUPABASE_CONFIG (URL + anon key) e a tabela indicadores para ativar o login.')">Entrar</button>
+    <!-- LOGIN -->
+    <div id="adminLogin">
+      <div class="field"><label>E-mail</label><input id="admEmail" type="email" placeholder="voce@dominio.gov.br" /></div>
+      <div class="field"><label>Senha</label><input id="admPass" type="password" placeholder="••••••••" /></div>
+      <button class="btn" onclick="admLogin()">Entrar</button>
+      <div id="admMsg" class="admmsg"></div>
+    </div>
 
-    <h4 style="margin:22px 0 6px;font-size:14px">Status dos conectores de dados</h4>
-    <table class="status-tbl">
-      <tr><th>Fonte</th><th>Indicadores</th><th>Tipo</th><th>Status</th></tr>
-      <tr><td>IBGE (API Agregados)</td><td>População, PIB</td><td>AUTO</td><td><span class="pill ok">OK</span></td></tr>
-      <tr><td>MDIC Comex Stat</td><td>Exportações</td><td>AUTO</td><td><span class="pill ok">OK</span></td></tr>
-      <tr><td>SSP-RS / Dados RS</td><td>Homicídios</td><td>AUTO</td><td><span class="pill rev">Revisar</span></td></tr>
-      <tr><td>Novo CAGED / MTE</td><td>Empregos</td><td>SEMI</td><td><span class="pill ok">OK</span></td></tr>
-      <tr><td>Receita Federal (CNPJ)</td><td>Empresas ativas</td><td>SEMI</td><td><span class="pill ok">OK</span></td></tr>
-      <tr><td>UNISINOS · Tecnosinos · STIHL</td><td>Inovação, indústria</td><td>MANUAL</td><td><span class="pill man">Manual</span></td></tr>
-    </table>
+    <!-- EDITOR -->
+    <div id="adminEditor" style="display:none">
+      <div class="admbar"><span id="admWho"></span>
+        <button class="btn ghost" style="width:auto;margin:0;padding:6px 12px" onclick="admLogout()">Sair</button></div>
+      <div class="admtabs">
+        <button class="admtab active" id="tabInd" onclick="admTab('ind')">Indicadores</button>
+        <button class="admtab" id="tabSer" onclick="admTab('ser')">Gráficos</button>
+      </div>
+      <div id="admInd"></div>
+      <div id="admSer" style="display:none"></div>
+      <div class="admsave">
+        <div id="admSaveMsg" class="admmsg"></div>
+        <button class="btn" onclick="admSave()">Salvar alterações</button>
+      </div>
+    </div>
+
     <button class="btn ghost" onclick="closeAdmin()">Voltar ao site ✕</button>
   </div>
 </div>
@@ -801,7 +828,8 @@
    Hoje: valores fixos (research). Amanhã: preencher DATA via
    window.supabase.from('indicadores').select() e re-renderizar.
    ========================================================= */
-const SUPABASE_CONFIG = { url: '', anonKey: '', table: 'indicadores' }; // preencher para ativar o painel
+const SUPABASE_CONFIG = { url:'https://bcppaljkdsqmbnbaitvp.supabase.co', anonKey:'sb_publishable_ujrs4mdhqXF8C-KxtKMpIw_N_Upw3r-' };
+let supa=null; try{ supa = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey); }catch(e){ console.warn('Supabase init:', e); }
 
 const DATA = {
   populacao: { labels:['2000','2010','2022','2024'], values:[193547,214087,216964,225669] },
@@ -835,7 +863,7 @@ function gridOpts(){return {scales:{
   x:{grid:{display:false},ticks:{color:col('--dim')}}},
   plugins:{legend:{display:false}},maintainAspectRatio:false};}
 
-window.addEventListener('DOMContentLoaded',()=>{
+function buildCharts(){
   // População (linha)
   new Chart(document.getElementById('popChart'),{type:'line',
     data:{labels:DATA.populacao.labels,datasets:[{data:DATA.populacao.values,
@@ -861,6 +889,26 @@ window.addEventListener('DOMContentLoaded',()=>{
       pointBackgroundColor:col('--red'),pointBorderColor:'#fff',pointBorderWidth:2,
       borderWidth:3,pointRadius:5,pointHoverRadius:7}]},options:gridOpts()});
 
+}
+
+async function loadFromDB(){
+  if(!supa) return;
+  try{
+    const [ri, rs] = await Promise.all([
+      supa.from('sl_indicadores').select('chave,valor,prefixo,sufixo,decimais'),
+      supa.from('sl_series').select('chave,labels,valores')
+    ]);
+    (ri.data||[]).forEach(r=>{
+      const el=document.querySelector('[data-key="'+r.chave+'"]');
+      if(el){ el.dataset.count=r.valor; el.dataset.prefix=r.prefixo||''; el.dataset.suffix=r.sufixo||''; el.dataset.dec=r.decimais||0; }
+    });
+    (rs.data||[]).forEach(r=>{ if(DATA[r.chave]){ DATA[r.chave].labels=r.labels; DATA[r.chave].values=r.valores; } });
+  }catch(e){ console.warn('Supabase load falhou; usando dados estáticos.', e); }
+}
+
+window.addEventListener('DOMContentLoaded', async ()=>{
+  await loadFromDB();
+  buildCharts();
   runCounters();
 });
 
@@ -903,10 +951,76 @@ function runCounters(){
     a.addEventListener('click',()=>bar.classList.remove('open')));
 })();
 
-/* ---- admin drawer ---- */
-function openAdmin(){document.getElementById('drawer').classList.add('open');}
-function closeAdmin(){document.getElementById('drawer').classList.remove('open');}
+/* ---- painel admin (Supabase) ---- */
+function openAdmin(){ document.getElementById('drawer').classList.add('open'); }
+function closeAdmin(){ document.getElementById('drawer').classList.remove('open'); }
 document.getElementById('drawer').addEventListener('click',e=>{if(e.target.id==='drawer')closeAdmin();});
+
+function esc(s){ return (s==null?'':String(s)).replace(/"/g,'&quot;'); }
+
+async function admLogin(){
+  const msg=document.getElementById('admMsg'); msg.className='admmsg'; msg.textContent='Entrando…';
+  if(!supa){ msg.className='admmsg err'; msg.textContent='Supabase não configurado.'; return; }
+  const email=document.getElementById('admEmail').value.trim();
+  const password=document.getElementById('admPass').value;
+  const { error } = await supa.auth.signInWithPassword({ email, password });
+  if(error){ msg.className='admmsg err'; msg.textContent='Falha no login: '+error.message; return; }
+  const { data: adm } = await supa.from('sl_admins').select('email,nome').eq('email', email).maybeSingle();
+  if(!adm){ msg.className='admmsg err'; msg.textContent='Usuário sem permissão de edição.'; await supa.auth.signOut(); return; }
+  document.getElementById('adminLogin').style.display='none';
+  document.getElementById('adminEditor').style.display='block';
+  document.getElementById('admWho').textContent='Conectado: '+(adm.nome||email);
+  await admLoad();
+}
+async function admLogout(){
+  await supa.auth.signOut();
+  document.getElementById('adminEditor').style.display='none';
+  document.getElementById('adminLogin').style.display='block';
+  document.getElementById('admPass').value='';
+}
+async function admLoad(){
+  const { data: inds } = await supa.from('sl_indicadores').select('*').order('ordem');
+  const { data: sers } = await supa.from('sl_series').select('*').order('chave');
+  let h='';
+  (inds||[]).forEach(r=>{
+    h+='<div class="admrow"><div class="cap">'+(r.capitulo||'')+'</div><div class="lbl">'+r.rotulo+'</div>'+
+       '<div class="flds"><input class="val" type="number" step="any" value="'+(r.valor??'')+'" data-k="'+r.chave+'" data-f="valor">'+
+       '<input type="text" value="'+esc(r.fonte)+'" placeholder="fonte" data-k="'+r.chave+'" data-f="fonte">'+
+       '<input type="text" value="'+esc(r.data_referencia)+'" placeholder="ref." data-k="'+r.chave+'" data-f="data_referencia"></div></div>';
+  });
+  document.getElementById('admInd').innerHTML=h;
+  let s='';
+  (sers||[]).forEach(r=>{
+    s+='<div class="admrow"><div class="cap">série · '+r.chave+'</div><div class="lbl">'+r.titulo+'</div>'+
+       '<div class="cap" style="margin-bottom:4px">'+(r.labels||[]).join(' · ')+'</div>'+
+       '<div class="flds"><input type="text" style="max-width:none" value="'+(r.valores||[]).join(', ')+'" data-k="'+r.chave+'" data-f="valores"></div></div>';
+  });
+  document.getElementById('admSer').innerHTML=s;
+}
+function admTab(t){
+  document.getElementById('admInd').style.display = t==='ind'?'block':'none';
+  document.getElementById('admSer').style.display = t==='ser'?'block':'none';
+  document.getElementById('tabInd').classList.toggle('active', t==='ind');
+  document.getElementById('tabSer').classList.toggle('active', t==='ser');
+}
+async function admSave(){
+  const msg=document.getElementById('admSaveMsg'); msg.className='admmsg'; msg.textContent='Salvando…';
+  try{
+    const inds={};
+    document.querySelectorAll('#admInd input').forEach(i=>{
+      const k=i.dataset.k, f=i.dataset.f; inds[k]=inds[k]||{};
+      inds[k][f]= f==='valor' ? (i.value===''?null:Number(i.value)) : i.value;
+    });
+    for(const k in inds){ const {error}=await supa.from('sl_indicadores').update(inds[k]).eq('chave',k); if(error) throw error; }
+    const sers={};
+    document.querySelectorAll('#admSer input').forEach(i=>{
+      const arr=i.value.split(',').map(x=>x.trim()).filter(x=>x!=='').map(Number);
+      sers[i.dataset.k]={ valores: arr };
+    });
+    for(const k in sers){ const {error}=await supa.from('sl_series').update(sers[k]).eq('chave',k); if(error) throw error; }
+    msg.className='admmsg ok'; msg.textContent='Salvo com sucesso! Recarregue a página para ver no site.';
+  }catch(e){ msg.className='admmsg err'; msg.textContent='Erro ao salvar: '+(e.message||e); }
+}
 </script>
 </body>
 </html>

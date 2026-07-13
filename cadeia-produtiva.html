@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cadeia Produtiva · São Leopoldo em Números</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#eef3ea;--bg2:#fff;--card:#fff;--card2:#eaf1e4;--line:#d7e1d0;--track:#e1e9da;
+    --txt:#152018;--muted:#455449;--dim:#74847a;
+    --brand:#1f9d57;--brand2:#28c06e;--gold:#d19a1f;--blue:#2f5db0;--red:#d0453a;
+    --shadow:0 1px 2px rgba(21,32,24,.05),0 10px 30px rgba(21,32,24,.06);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;line-height:1.5}
+  img{max-width:100%}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  header.top{background:#fff;border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(21,32,24,.06)}
+  header.top::before{content:"";display:block;height:4px;background:linear-gradient(90deg,var(--brand2),var(--gold) 38%,var(--blue) 68%,var(--red))}
+  .top-in{display:flex;align-items:center;gap:14px;min-height:64px;padding:8px 0}
+  .logo{height:40px}
+  .brand{border-left:2px solid var(--line);padding-left:14px}
+  .brand b{color:var(--brand);font-size:15px;font-weight:800;display:block}
+  .brand span{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+  .back{margin-left:auto;font-size:13px;color:var(--muted);text-decoration:none;font-weight:600}
+  .back:hover{color:var(--brand)}
+
+  .hero{padding:30px 0 6px}
+  .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--brand);padding:5px 13px;border-radius:999px}
+  h1{font-size:clamp(24px,3.5vw,34px);font-weight:900;letter-spacing:-.02em;margin:12px 0 4px}
+  .sub{color:var(--muted);max-width:760px;font-size:15px}
+  .demo{margin-top:14px;background:rgba(209,154,31,.12);border:1px solid rgba(209,154,31,.4);color:#8a6a12;
+    font-size:12.5px;font-weight:600;padding:9px 14px;border-radius:10px;display:inline-block}
+
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 6px;background:#fff;
+    border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+  .filters label{font-size:11px;color:var(--dim);font-weight:700;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+  .fg{display:flex;flex-direction:column}
+  select,.mei-btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:9px 12px;border-radius:9px;font-size:14px;cursor:pointer}
+  select{min-width:160px}
+  .mei-btn{font-weight:700}
+  .mei-btn.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+  .clear{margin-left:auto;background:none;border:none;color:var(--red);font-weight:700;font-size:13px;cursor:pointer}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+  @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:#fff;border:1px solid var(--line);border-top:3px solid var(--brand);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .kpi:nth-child(2){border-top-color:var(--gold)} .kpi:nth-child(3){border-top-color:var(--blue)} .kpi:nth-child(4){border-top-color:var(--red)}
+  .kpi .n{font-size:27px;font-weight:900;letter-spacing:-.02em}
+  .kpi .l{font-size:12.5px;color:var(--muted);margin-top:3px}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+  .panel h3{font-size:15px;font-weight:800;margin-bottom:2px}
+  .panel .src{font-size:11.5px;color:var(--dim);margin-bottom:12px}
+  .box{position:relative;height:280px}
+  .cnae{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+  .cnae-row .lbl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+  .cnae-row .lbl b{color:var(--brand)}
+  .bar{height:8px;background:var(--track);border-radius:5px;overflow:hidden}
+  .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2))}
+  footer{color:var(--muted);font-size:12px;padding:30px 0}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap top-in">
+  <img class="logo" src="logo-sao-leopoldo.png" alt="Prefeitura de São Leopoldo" />
+  <div class="brand"><b>São Leopoldo em Números</b><span>Sec. de Desenvolvimento Econômico</span></div>
+  <a class="back" href="/">← voltar ao portal</a>
+</div></header>
+
+<div class="wrap hero">
+  <span class="tag">Protótipo · Cadeia Produtiva</span>
+  <h1>As empresas de São Leopoldo, por bairro, setor e porte</h1>
+  <p class="sub">Painel interativo de inteligência empresarial: filtre por bairro, setor, porte e MEI e veja os números
+    recalcularem na hora. É a base para políticas de desenvolvimento econômico e captação de investimentos.</p>
+  <div class="demo">⚠ Dados <b>demonstrativos</b> (distribuição realista). A extração oficial dos CNPJs da Receita Federal entra na mesma estrutura.</div>
+</div>
+
+<div class="wrap">
+  <div class="filters">
+    <div class="fg"><label>Bairro</label><select id="fBairro"><option value="">Todos</option></select></div>
+    <div class="fg"><label>Setor</label><select id="fSetor"><option value="">Todos</option></select></div>
+    <div class="fg"><label>Porte</label><select id="fPorte"><option value="">Todos</option></select></div>
+    <div class="fg"><label>Filtro rápido</label><button class="mei-btn" id="fMei">Somente MEI</button></div>
+    <button class="clear" id="fClear">Limpar filtros ✕</button>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="kTotal">–</div><div class="l">Empresas ativas (filtro atual)</div></div>
+    <div class="kpi"><div class="n" id="kMei">–</div><div class="l">MEIs · % do total</div></div>
+    <div class="kpi"><div class="n" id="kSetor">–</div><div class="l">Setor líder</div></div>
+    <div class="kpi"><div class="n" id="kNovas">–</div><div class="l">Aberturas em 2025</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel"><h3>Empresas por bairro</h3><div class="src">Top 12 · recalcula com os filtros</div><div class="box"><canvas id="cBairro"></canvas></div></div>
+    <div class="panel"><h3>Por setor</h3><div class="src">Distribuição por grande setor</div><div class="box"><canvas id="cSetor"></canvas></div></div>
+    <div class="panel"><h3>Aberturas por ano</h3><div class="src">Novas empresas · a partir de 2010</div><div class="box"><canvas id="cAno"></canvas></div></div>
+    <div class="panel"><h3>Por porte</h3><div class="src">MEI · ME · EPP · Demais</div><div class="box"><canvas id="cPorte"></canvas></div></div>
+  </div>
+
+  <div class="panel" style="margin-top:16px"><h3>Principais atividades (CNAE)</h3><div class="src">Top 10 no filtro atual</div><div class="cnae" id="cnaeList"></div></div>
+
+  <footer class="wrap">Protótipo de painel de inteligência empresarial · São Leopoldo em Números · dados demonstrativos.</footer>
+</div>
+
+<script>
+const SB={url:'https://bcppaljkdsqmbnbaitvp.supabase.co',key:'sb_publishable_ujrs4mdhqXF8C-KxtKMpIw_N_Upw3r-'};
+const supa=window.supabase.createClient(SB.url,SB.key);
+const C=getComputedStyle(document.documentElement),col=n=>C.getPropertyValue(n).trim();
+Chart.defaults.color=col('--muted');Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+const fmt=n=>Number(n).toLocaleString('pt-BR');
+const state={bairro:null,setor:null,porte:null,mei:null};
+let charts={}, optsDone=false;
+
+function chart(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
+const gridOpts={maintainAspectRatio:false,plugins:{legend:{display:false}},
+  scales:{y:{grid:{color:'rgba(21,32,24,.06)'},ticks:{color:col('--dim')}},x:{grid:{display:false},ticks:{color:col('--dim')}}}};
+
+function fillOptions(op){
+  if(optsDone)return; optsDone=true;
+  const add=(sel,arr)=>{const s=document.getElementById(sel);arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});};
+  add('fBairro',op.bairros); add('fSetor',op.setores); add('fPorte',op.portes);
+}
+function render(d){
+  fillOptions(d.opcoes);
+  document.getElementById('kTotal').textContent=fmt(d.total);
+  document.getElementById('kMei').textContent=(d.total?Math.round(100*d.mei/d.total):0)+'%';
+  document.getElementById('kSetor').textContent=(d.por_setor[0]?d.por_setor[0].k:'–');
+  document.getElementById('kNovas').textContent=fmt(d.novas);
+
+  chart('cBairro',{type:'bar',data:{labels:d.por_bairro.map(x=>x.k),datasets:[{data:d.por_bairro.map(x=>x.v),backgroundColor:col('--brand'),borderRadius:5,maxBarThickness:26}]},options:gridOpts});
+  chart('cSetor',{type:'doughnut',data:{labels:d.por_setor.map(x=>x.k),datasets:[{data:d.por_setor.map(x=>x.v),backgroundColor:[col('--brand'),col('--blue'),col('--gold'),col('--red'),'#7a5cd0','#2bb3a3','#e08a3c','#8aa63c','#c0567f'],borderColor:'#fff',borderWidth:2}]},options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11}}}}}});
+  chart('cAno',{type:'line',data:{labels:d.por_ano.map(x=>x.k),datasets:[{data:d.por_ano.map(x=>x.v),borderColor:col('--blue'),backgroundColor:'rgba(47,93,176,.12)',fill:true,tension:.35,borderWidth:3,pointRadius:3}]},options:gridOpts});
+  chart('cPorte',{type:'bar',data:{labels:d.por_porte.map(x=>x.k),datasets:[{data:d.por_porte.map(x=>x.v),backgroundColor:col('--gold'),borderRadius:5,maxBarThickness:46}]},options:gridOpts});
+
+  const max=d.top_cnae[0]?d.top_cnae[0].v:1;
+  document.getElementById('cnaeList').innerHTML=d.top_cnae.map(x=>
+    '<div class="cnae-row"><div class="lbl"><span>'+x.k+'</span><b>'+fmt(x.v)+'</b></div><div class="bar"><span style="width:'+(100*x.v/max)+'%"></span></div></div>').join('');
+}
+async function load(){
+  const {data,error}=await supa.rpc('sl_cadeia',{p_bairro:state.bairro,p_setor:state.setor,p_porte:state.porte,p_mei:state.mei});
+  if(error){console.error(error);document.getElementById('kTotal').textContent='erro';return;}
+  render(data);
+}
+document.getElementById('fBairro').onchange=e=>{state.bairro=e.target.value||null;load();};
+document.getElementById('fSetor').onchange=e=>{state.setor=e.target.value||null;load();};
+document.getElementById('fPorte').onchange=e=>{state.porte=e.target.value||null;load();};
+document.getElementById('fMei').onclick=e=>{state.mei=state.mei?null:true;e.target.classList.toggle('on',!!state.mei);load();};
+document.getElementById('fClear').onclick=()=>{state.bairro=state.setor=state.porte=state.mei=null;
+  document.getElementById('fBairro').value='';document.getElementById('fSetor').value='';document.getElementById('fPorte').value='';
+  document.getElementById('fMei').classList.remove('on');load();};
+load();
+</script>
+</body>
+</html>

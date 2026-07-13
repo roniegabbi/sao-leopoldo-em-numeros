@@ -171,6 +171,15 @@
     padding:11px 20px;border-radius:11px;font-size:14px;font-weight:700;
     box-shadow:0 8px 20px rgba(31,157,87,.28);transition:.15s}
   .cta:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(31,157,87,.36)}
+  .cta-painel{display:flex;align-items:center;gap:16px;margin-top:26px;text-decoration:none;
+    background:linear-gradient(135deg,var(--brand),#186b41);color:#fff;border-radius:16px;padding:18px 22px;
+    box-shadow:0 10px 26px rgba(31,157,87,.28);transition:.18s}
+  .cta-painel:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(31,157,87,.36)}
+  .cta-painel b{font-size:16px}
+  .cta-painel .cta-ic{font-size:30px;flex-shrink:0}
+  .cta-painel small{color:rgba(255,255,255,.85);font-weight:400;font-size:13px;line-height:1.4;display:inline-block;margin-top:3px}
+  .cta-painel .cta-arrow{margin-left:auto;font-size:26px;font-weight:800;flex-shrink:0}
+  @media(max-width:560px){.cta-painel .cta-arrow{display:none}.cta-painel{padding:16px}}
 
   .funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:28px}
   @media(max-width:760px){.funnel{grid-template-columns:1fr}}
@@ -433,6 +442,13 @@
           <strong>industriais mais tradicionais</strong> da Região Metropolitana — do metal-mecânico ao calçadista.</p>
       </div>
     </div>
+
+    <a class="cta-painel" href="cadeia-produtiva.html">
+      <span class="cta-ic">📊</span>
+      <span><b>Explorar o painel Cadeia Produtiva</b><br>
+      <small>As 34,7 mil empresas de São Leopoldo — filtre por bairro, setor, porte e MEI, com os números recalculando na hora.</small></span>
+      <span class="cta-arrow">→</span>
+    </a>
   </div>
 </section>
 
